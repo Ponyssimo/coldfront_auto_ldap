@@ -51,22 +51,20 @@ class Command(BaseCommand):
 
         if user != None:
             search_user(conn, user)
-            if len(conn.entries) == 0:
-                break
-            if project != None:
-                search_project(project)
-                if len(conn.entries) == 0:
-                    break
-                if options["remove"]:
-                    remove_user_group(conn, user, project)
-                else:
-                    add_user(conn, user, project)
-            pass
+            if len(conn.entries) != 0:
+                if project != None:
+                    search_project(project)
+                    if len(conn.entries) != 0:
+                        if options["remove"]:
+                            remove_user_group(conn, user, project)
+                        else:
+                            add_user(conn, user, project)
+            else:
+                add_user(conn, user)
         elif project != None:
             search_project(conn, project)
-            if len(conn.entries) == 0:
-                break
-            add_project(conn, project)
+            if len(conn.entries) != 0:
+                add_project(conn, project)
         else:
             for p in projects:
                 proj = p.title

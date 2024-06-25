@@ -1,6 +1,6 @@
 import logging
 import os
-from ldap3 import Server, Connection, Tls, get_config_parameter, set_config_parameter, SASL, ALL, MOCK_SYNC, ALL_ATTRIBUTES, SUBTREE
+from ldap3 import Server, Connection, Tls, get_config_parameter, set_config_parameter, SASL, ALL, MOCK_SYNC, ALL_ATTRIBUTES, SUBTREE, LEVEL
 from ldap3.core.exceptions import LDAPException
 
 from coldfront.core.utils.common import import_from_settings

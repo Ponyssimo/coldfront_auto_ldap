@@ -29,15 +29,13 @@ def get_project(allocation_pk):
 def add_group(allocation_pk):
     conn = connect()
     project = get_project(allocation_pk)
-    pi = project.pi.user.username
-    pi_cn = project.pi.user.first_name
-    pi_sn = project.pi.user.last_name
+    pi = project.pi
     #search for group
     search_project(conn, project)
     
     # some kind of check here to see if the group was found
     if len(conn.entries) != 0:
-        add_project(conn, project, pi, pi_cn, pi_sn)
+        add_project(conn, project, pi)
     else:
         logger.warn("Project %s not found", project.title)
     
@@ -48,8 +46,6 @@ def add_user(allocation_user_pk):
     conn = connect()
     user = AllocationUser.objects.get(pk=allocation_user_pk)
     username = user.user.username
-    user_first = user.user.first_name
-    user_last = user.user.last_name
     project = user.allocation.project.title
 
     # check if user exists, create if they don't - maybe, might be able to just use existing users in ldap
@@ -57,7 +53,7 @@ def add_user(allocation_user_pk):
 
     if len(conn.entries) == 0:
         logger.info("User %s does not exist, creating user", username)
-        add_user(conn, username, user_first, user_last)
+        add_user(conn, user)
 
     # add user to project's group
     add_user_group(conn, username, project)
@@ -69,8 +65,6 @@ def remove_user(allocation_user_pk):
     conn = connect()
     user = AllocationUser.objects.get(pk=allocation_user_pk)
     username = user.user.username
-    user_first = user.user.first_name
-    user_last = user.user.last_name
     project = user.allocation.project.title
 
     # sheck if user exists
@@ -79,6 +73,6 @@ def remove_user(allocation_user_pk):
     if len(conn.entries) == 0:
         logger.info("User %s does not exist", username)
     else:
-        remove_user_group(conn, username, project)
+        remove_user_group(conn, user, project)
         
     disconnect(conn)

@@ -100,10 +100,10 @@ def search_project(conn, project, uri = URI):
         logger.warn(e)
 
 # adds an ldap group to the Coldfront OU
-def add_project(conn, project, pi, pi_cn, pi_sn, uri = URI):
-    add_user(conn, pi, pi_cn, pi_sn)
+def add_project(conn, project, pi, uri = URI):
+    add_user(conn, pi)
     try:
-        response = conn.add('cn=' + project + ',ou=projects,' + uri, 'groupOfNames', {'cn': project, 'member': 'uid=' + pi + ',ou=users,' + uri})
+        response = conn.add('cn=' + project + ',ou=projects,' + uri, 'groupOfNames', {'cn': project, 'member': 'uid=' + pi.user.username + ',ou=users,' + uri})
     except LDAPException as e:
         logger.warn(e)
 
@@ -132,7 +132,10 @@ def search_user_group(conn, username, project, uri = URI):
         logger.warn(e)
 
 # creates a new user in the Coldfront OU
-def add_user(conn, username, cn, sn, uri = URI):
+def add_user(conn, user, uri = URI):
+    username = user.user.username
+    cn = user.user.user_first
+    sn = user.user.user_last
     try:
         response = conn.add('uid=' + username + ',ou=users,' + uri, 'inetOrgPerson', {'cn': cn, 'sn': sn})
     except LDAPException as e:
@@ -150,8 +153,10 @@ def add_user_group(conn, username, project, uri = URI):
             return -1
 
 # removes a given user from a given group in the Coldfront OU
-def remove_user_group(conn, username, project, uri = URI):
+def remove_user_group(conn, user, project, uri = URI):
     search_project(conn, project, uri)
+
+    username = user.user.username
 
     if len(conn.entries) != 0:
         try:

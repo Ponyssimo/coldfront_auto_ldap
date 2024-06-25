@@ -41,11 +41,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        projects = Allocation.objects.all()
+        projects = Project.objects.all()
         users = User.objects.all()
 
-        user = options["user"]
-        project = options["project"]
+        user = User.objects.get(name=options["user"])
+        project = Project.obejcts.get(name=options["project"]).title
 
         conn = connect()
 

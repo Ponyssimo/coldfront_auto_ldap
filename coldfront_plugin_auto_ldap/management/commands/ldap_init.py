@@ -2,6 +2,9 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 
+from ldap3 import LEVEL
+from ldap3.core.exceptions import LDAPException
+
 from coldfront.core.project.models import Project, ProjectAttribute, ProjectUser
 from coldfront.core.user.models import User
 
@@ -33,7 +36,7 @@ class Command(BaseCommand):
 
         search_base = uri
         search_scope = LEVEL
-        search_filter = 'ou=' + OU
+        search_filter = '(ou=' + OU + ')'
         try:
             conn.search(search_base=search_base,
                         search_filter=search_filter,
@@ -52,7 +55,7 @@ class Command(BaseCommand):
 
         search_base = uri
         search_scope = LEVEL
-        search_filter = 'ou=users'
+        search_filter = '(ou=users)'
         try:
             conn.search(search_base=search_base,
                         search_filter=search_filter,
@@ -69,7 +72,7 @@ class Command(BaseCommand):
 
         search_base = uri
         search_scope = LEVEL
-        search_filter = 'ou=projects'
+        search_filter = '(ou=projects)'
         try:
             conn.search(search_base=search_base,
                         search_filter=search_filter,

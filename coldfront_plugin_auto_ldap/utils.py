@@ -55,7 +55,7 @@ def connect(uri = URI):
             local_certificate_file=LDAP_CERT_FILE,
             ca_certs_file=LDAP_CACERT_FILE,
         )
-    server = Server(LDAP_SERVER_URI, use_ssl=LDAP_USE_SSL, connect_timeout=LDAP_CONNECT_TIMEOUT, tls=tls)
+    server = Server(LDAP_SERVER_URI, use_ssl=LDAP_USE_SSL, connect_timeout=LDAP_CONNECT_TIMEOUT, tls=tls, get_info=ALL)
     conn_params = {"auto_bind": True}
     if LDAP_SASL_MECHANISM:
         conn_params["sasl_mechanism"] = LDAP_SASL_MECHANISM
@@ -65,7 +65,7 @@ def connect(uri = URI):
     if MOCK:
         if not os.path.exists(MOCK_FILE):
             os.mknod(MOCK_FILE)
-            if conn.search('ou=*', '(objectclass=*)', attributes=ALL_ATTRIBUTES):
+            if conn.search(URI, '(objectclass=*)', attributes=ALL_ATTRIBUTES):
                 conn.response_to_file(MOCK_FILE, raw=True)
         server.info.to_file(MOCK_INFO)
         server.schema.to_file(MOCK_SCHEMA)
@@ -75,6 +75,7 @@ def connect(uri = URI):
             connection.strategy.entries_from_json(MOCK_FILE)
         except:
             pass
+        connection.bind()
         conn.unbind()
         return connection
     return conn
@@ -82,7 +83,7 @@ def connect(uri = URI):
 # writes current DIT to file if MOCK is set to true, then unbinds from the connection
 def disconnect(conn):
     if MOCK:
-        if conn.search('ou=*', '(objectclass=*)', attributes=ALL_ATTRIBUTES):
+        if conn.search(URI, '(objectclass=*)', attributes=ALL_ATTRIBUTES):
             conn.response_to_file(MOCK_FILE, raw=True)
     conn.unbind
 

@@ -7,7 +7,7 @@ from coldfront.core.user.models import User
 
 from coldfront.core.utils.common import import_from_settings
 
-OU = import_from_settings("AUTO_LDAP_COLDFRONT_OU")
+OU = import_from_settings("AUTO_LDAP_COLDFRONT_OU", 'COLDFRONT')
 
 from coldfront_plugin_auto_ldap.utils import (
     connect,

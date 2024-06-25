@@ -1,6 +1,7 @@
 import logging
 import os
-from ldap3 import Server, Connection, Tls, get_config_parameter, set_config_parameter, SASL, ALL, MOCK_ASYNC, ALL_ATTRIBUTES
+from ldap3 import Server, Connection, Tls, get_config_parameter, set_config_parameter, SASL, ALL, MOCK_SYNC, ALL_ATTRIBUTES, SUBTREE
+from ldap3.core.exceptions import LDAPException
 
 from coldfront.core.utils.common import import_from_settings
 
@@ -19,9 +20,11 @@ LDAP_PRIV_KEY_FILE = import_from_settings("LDAP_USER_SEARCH_PRIV_KEY_FILE", None
 LDAP_CERT_FILE = import_from_settings("LDAP_USER_SEARCH_CERT_FILE", None)
 LDAP_CACERT_FILE = import_from_settings("LDAP_USER_SEARCH_CACERT_FILE", None)
 
-OU = import_from_settings("AUTO_LDAP_COLDFRONT_OU")
-MOCK = import_from_settings("AUTO_LDAP_MOCK") #whether to use a mock server
-MOCK_FILE = import_from_settings("AUTOLDAP_MOCK_FILE") #json file with mock server schema
+OU = import_from_settings("AUTO_LDAP_COLDFRONT_OU", 'COLDFRONT')
+MOCK = import_from_settings("AUTO_LDAP_MOCK", False) #whether to use a mock server
+MOCK_FILE = import_from_settings("AUTO_LDAP_MOCK_FILE", None) #json file with mock server schema
+MOCK_INFO = import_from_settings("AUTO_LDAP_INFO_FILE", None)
+MOCK_SCHEMA = import_from_settings("AUTO_LDAP_SCHEMA_FILE", None)
 
 # parse a given uri with OU into a format usable in LDAP operations
 def parse_uri(uri=LDAP_SERVER_URI, ou = OU, shortened=False):
@@ -45,15 +48,6 @@ URI = parse_uri()
 
 # connects to an ldap server based on parameters in Coldfront settings
 def connect(uri = URI):
-    if MOCK:
-        server = Server('mock server')
-        connection = Connection(server, user='cn=my_user,ou=test,o=lab', password='my_password', client_strategy=MOCK_ASYNC)
-        try:
-            connection.strategy.entries_from_json(MOCK_FILE)
-        except:
-            pass
-        else:
-            return connection
     tls = None
     if LDAP_USE_TLS:
         tls = Tls(
@@ -71,9 +65,16 @@ def connect(uri = URI):
     if MOCK:
         if not os.path.exists(MOCK_FILE):
             os.mknod(MOCK_FILE)
-        if conn.search('ou=*', '(objectclass=*)', attributes=ALL_ATTRIBUTES):
-            conn.response_to_file(MOCK_FILE, raw=True)
-        connection.strategy.entries_from_json(MOCK_FILE)
+            if conn.search('ou=*', '(objectclass=*)', attributes=ALL_ATTRIBUTES):
+                conn.response_to_file(MOCK_FILE, raw=True)
+        server.info.to_file(MOCK_INFO)
+        server.schema.to_file(MOCK_SCHEMA)
+        fake_server = Server.from_definition('my_fake_server', MOCK_INFO, MOCK_SCHEMA)
+        connection = Connection(fake_server, user='cn=my_user,ou=test,o=lab', password='my_password', client_strategy=MOCK_SYNC)
+        try:
+            connection.strategy.entries_from_json(MOCK_FILE)
+        except:
+            pass
         conn.unbind()
         return connection
     return conn

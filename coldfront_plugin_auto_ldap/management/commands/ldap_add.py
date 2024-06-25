@@ -44,8 +44,17 @@ class Command(BaseCommand):
         projects = Project.objects.all()
         users = User.objects.all()
 
-        user = User.objects.get(name=options["user"])
-        project = Project.obejcts.get(name=options["project"]).title
+        user = None
+        project = None
+
+        try:
+            user = User.objects.get(name=options["user"])
+        except:
+            logger.info("User " + options["user"] + " not found")
+        try:
+            project = Project.obejcts.get(name=options["project"]).title
+        except:
+            logger.info("Project " + options["project"] + " not found")
 
         conn = connect()
 

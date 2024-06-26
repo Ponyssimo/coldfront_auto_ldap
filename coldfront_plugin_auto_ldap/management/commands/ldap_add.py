@@ -45,15 +45,17 @@ class Command(BaseCommand):
         users = User.objects.all()
 
         user = None
+        username = None
         project = None
         pi = None
 
         try:
-            user = User.objects.get(name=options["user"])
+            user = User.objects.get(username=options["user"])
+            username = user.username
         except:
             pass
         try:
-            projobj = Project.objects.get(name=options["project"])
+            projobj = Project.objects.get(title=options["project"])
             project = projobj.title
             pi = projobj.pi
         except:
@@ -62,11 +64,11 @@ class Command(BaseCommand):
         conn = connect()
 
         if user != None:
-            search_user(conn, user)
+            search_user(conn, username)
             if len(conn.entries) == 0:
                 add_user(conn, user)
             if project != None:
-                search_project(project)
+                search_project(conn, project)
                 if len(conn.entries) != 0:
                     if options["remove"]:
                         remove_user_group(conn, user, project)

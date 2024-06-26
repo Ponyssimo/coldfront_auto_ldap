@@ -1,6 +1,10 @@
 import logging
 import os
-from ldap3 import Server, Connection, Tls, get_config_parameter, set_config_parameter, SASL, ALL, MOCK_SYNC, ALL_ATTRIBUTES, SUBTREE, LEVEL
+from ldap3 import (Server,
+    Connection, Tls, get_config_parameter, set_config_parameter,
+    SASL, ALL, MOCK_SYNC, ALL_ATTRIBUTES, SUBTREE, LEVEL,
+    MODIFY_ADD, MODIFY_DELETE
+)
 from ldap3.core.exceptions import LDAPException
 
 from coldfront.core.utils.common import import_from_settings
@@ -147,7 +151,7 @@ def add_user_group(conn, username, project, uri = URI):
 
     if len(conn.entries) != 0:
         try:
-            conn.modify('cn=' + project + ',ou=projects' + uri, {'member': [(MODIFY_ADD, ['uid=' + username + ',ou=users,' + uri])]})
+            conn.modify('cn=' + project + ',ou=projects,' + uri, {'member': [(MODIFY_ADD, ['uid=' + username + ',ou=users,' + uri])]})
         except LDAPException as e:
             logger.warn(e)
             return -1
@@ -160,7 +164,7 @@ def remove_user_group(conn, user, project, uri = URI):
 
     if len(conn.entries) != 0:
         try:
-            conn.modify('cn=' + project + ',ou=projects' + uri, {'member': [(MODIFY_DELETE, ['uid=' + username])]})
+            conn.modify('cn=' + project + ',ou=projects,' + uri, {'member': [(MODIFY_DELETE, ['uid=' + username + ',ou=users,' + uri])]})
         except LDAPException as e:
             logger.warn(e)
             return -1

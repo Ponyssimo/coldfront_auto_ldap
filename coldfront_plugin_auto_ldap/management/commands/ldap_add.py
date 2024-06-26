@@ -73,7 +73,7 @@ class Command(BaseCommand):
                     if options["remove"]:
                         remove_user_group(conn, user, project)
                     else:
-                        add_user(conn, user, project)
+                        add_user_group(conn, username, project)
                 else:
                     logger.warn("Project " + project + " does not exist")
         elif project != None:

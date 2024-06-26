@@ -50,26 +50,27 @@ class Command(BaseCommand):
         try:
             user = User.objects.get(name=options["user"])
         except:
-            logger.info("User " + options["user"] + " not found")
+            pass
         try:
-            project = Project.obejcts.get(name=options["project"]).title
+            project = name=options["project"]
         except:
-            logger.info("Project " + options["project"] + " not found")
+            pass
 
         conn = connect()
 
         if user != None:
             search_user(conn, user)
-            if len(conn.entries) != 0:
-                if project != None:
-                    search_project(project)
-                    if len(conn.entries) != 0:
-                        if options["remove"]:
-                            remove_user_group(conn, user, project)
-                        else:
-                            add_user(conn, user, project)
-            else:
+            if len(conn.entries) == 0:
                 add_user(conn, user)
+            if project != None:
+                search_project(project)
+                if len(conn.entries) != 0:
+                    if options["remove"]:
+                        remove_user_group(conn, user, project)
+                    else:
+                        add_user(conn, user, project)
+                else:
+                    logger.warn("Project " + project + " does not exist")
         elif project != None:
             search_project(conn, project)
             if len(conn.entries) != 0:

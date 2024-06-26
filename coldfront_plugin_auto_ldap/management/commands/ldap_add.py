@@ -46,13 +46,16 @@ class Command(BaseCommand):
 
         user = None
         project = None
+        pi = None
 
         try:
             user = User.objects.get(name=options["user"])
         except:
             pass
         try:
-            project = name=options["project"]
+            projobj = Project.objects.get(name=options["project"])
+            project = projobj.title
+            pi = projobj.pi
         except:
             pass
 
@@ -73,15 +76,17 @@ class Command(BaseCommand):
                     logger.warn("Project " + project + " does not exist")
         elif project != None:
             search_project(conn, project)
-            if len(conn.entries) != 0:
-                add_project(conn, project)
+            if len(conn.entries) == 0:
+                add_project(conn, project, pi)
+            else:
+                logger.warn("Project " + project + " already exists")
         else:
             for p in projects:
                 proj = p.title
                 search_project(conn, proj)
                 if len(conn.entries) == 0:
                     break
-                add_project(conn, proj)
+                add_project(conn, proj, p.pi)
                 users = project.ProjectUser.all()
                 for u in users:
                     username = u.user.username

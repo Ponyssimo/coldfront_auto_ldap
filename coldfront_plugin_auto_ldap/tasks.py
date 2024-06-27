@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 # creates a new project
 def add_group(allocation_pk):
     conn = connect()
-    project = Allocation.objects.get(pk=allocation_pk)
+    project = Allocation.objects.get(pk=allocation_pk).project
     pi = project.pi
     #search for group
     search_project(conn, project.title)
@@ -48,7 +48,7 @@ def add_user(allocation_user_pk):
 
     if len(conn.entries) == 0:
         logger.info("User %s does not exist, creating user", username)
-        add_user(conn, user)
+        add_user(conn, user.user)
 
     # add user to project's group
     add_user_group(conn, username, project)
@@ -68,6 +68,6 @@ def remove_user(allocation_user_pk):
     if len(conn.entries) == 0:
         logger.info("User %s does not exist", username)
     else:
-        remove_user_group(conn, user, project)
+        remove_user_group(conn, username, project)
         
     disconnect(conn)

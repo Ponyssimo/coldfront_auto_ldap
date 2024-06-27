@@ -20,24 +20,19 @@ from coldfront_plugin_auto_ldap.utils import (
 
 logger = logging.getLogger(__name__)
 
-# gets the project title from an allocation_pk
-def get_project(allocation_pk):
-    allocation = Allocation.objects.get(pk=allocation_pk)
-    return allocation.project.title
-
 # creates a new project
 def add_group(allocation_pk):
     conn = connect()
-    project = get_project(allocation_pk)
+    project = Allocation.objects.get(pk=allocation_pk)
     pi = project.pi
     #search for group
-    search_project(conn, project)
+    search_project(conn, project.title)
     
     # some kind of check here to see if the group was found
-    if len(conn.entries) != 0:
-        add_project(conn, project, pi)
+    if len(conn.entries) == 0:
+        add_project(conn, project.title, pi)
     else:
-        logger.warn("Project %s not found", project.title)
+        logger.info("Project %s already exists", project.title)
     
     disconnect(conn)
 

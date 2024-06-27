@@ -153,7 +153,7 @@ def add_user_group(conn, username, project, uri = URI):
 
     if len(conn.entries) != 0:
         search_user_group(conn, username, project, uri)
-        if not "uid=" + username + ",ou=users," + uri in conn.entries[0].entries_to_json():
+        if not "uid=" + username + ",ou=users," + uri in conn.entries[0].entry_to_json():
             try:
                 conn.modify('cn=' + project + ',ou=projects,' + uri, {'member': [(MODIFY_ADD, ['uid=' + username + ',ou=users,' + uri])]})
             except LDAPException as e:

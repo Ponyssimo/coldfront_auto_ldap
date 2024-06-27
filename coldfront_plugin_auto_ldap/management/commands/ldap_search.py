@@ -36,8 +36,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        user = options["user"]
-        project = options["project"]
+        user = None
+        username = None
+        project = None
+
+        try:
+            user = User.objects.get(username=options["user"])
+            username = user.username
+        except:
+            pass
+        try:
+            projobj = Project.objects.get(title=options["project"])
+            project = projobj.title
+        except:
+            pass
 
         if user == None and project == None:
             logger.warn("Usage error: no arguments given")
@@ -48,9 +60,21 @@ class Command(BaseCommand):
         if user != None:
             if project != None:
                 search_user_group(conn, user, project)
+                if "uid=" + username + ",ou=users," + uri in conn.entries[0].entry_to_json():
+                    logger.info("User {username} found in project {project}")
+                else:
+                    logger.info("User {username} not found in project {project}")
             else:
-                search_user(conn, user)
+                search_user(conn, username)
+                if len(conn.entries) == 0:
+                    logger.info("User {username} not found")
+                else:
+                    logger.info("User {username} found")
         else:
             search_project(conn, project)
+            if len(conn.entries) == 0:
+                logger.info("Project {project} not found")
+            else:
+                logger.info("Project {project} found")
 
         disconnect(conn)

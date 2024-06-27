@@ -1,10 +1,11 @@
 import logging
 import os
-from ldap3 import (Server,
-    Connection, Tls, get_config_parameter, set_config_parameter,
+from ldap3 import (
+    Server, Connection, Tls, get_config_parameter, set_config_parameter,
     SASL, ALL, MOCK_SYNC, ALL_ATTRIBUTES, SUBTREE, LEVEL,
     MODIFY_ADD, MODIFY_DELETE
 )
+
 from ldap3.core.exceptions import LDAPException
 
 from coldfront.core.utils.common import import_from_settings
@@ -127,11 +128,12 @@ def search_user(conn, username, uri = URI):
 def search_user_group(conn, username, project, uri = URI):
     search_base = 'cn=' + project + ',ou=projects,' + uri
     search_scope = SUBTREE
-    search_filter = '(uid=' + username + ')'
+    search_filter = '(cn=' + project + ')'
     try:
         conn.search(search_base=search_base,
                     search_filter=search_filter,
-                    search_scope=search_scope)
+                    search_scope=search_scope,
+                    attributes='member')
     except LDAPException as e:
         logger.warn(e)
 
@@ -150,11 +152,13 @@ def add_user_group(conn, username, project, uri = URI):
     search_project(conn, project, uri)
 
     if len(conn.entries) != 0:
-        try:
-            conn.modify('cn=' + project + ',ou=projects,' + uri, {'member': [(MODIFY_ADD, ['uid=' + username + ',ou=users,' + uri])]})
-        except LDAPException as e:
-            logger.warn(e)
-            return -1
+        search_user_group(conn, username, project, uri)
+        if not "uid=" + username + ",ou=users," + uri in conn.entries[0].entries_to_json():
+            try:
+                conn.modify('cn=' + project + ',ou=projects,' + uri, {'member': [(MODIFY_ADD, ['uid=' + username + ',ou=users,' + uri])]})
+            except LDAPException as e:
+                logger.warn(e)
+                return -1
 
 # removes a given user from a given group in the Coldfront OU
 def remove_user_group(conn, user, project, uri = URI):

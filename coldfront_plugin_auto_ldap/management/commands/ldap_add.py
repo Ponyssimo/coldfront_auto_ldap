@@ -2,7 +2,7 @@ import logging
 
 from django.core.management.base import BaseCommand, CommandError
 
-from coldfront.core.project.models import Project, ProjectAttribute, ProjectUser
+from coldfront.core.project.models import Project, ProjectAttribute, ProjectUser, ProjectStatusChoice
 from coldfront.core.user.models import User
 
 from coldfront_plugin_auto_ldap.utils import (
@@ -12,6 +12,7 @@ from coldfront_plugin_auto_ldap.utils import (
     search_project,
     add_project,
     search_user,
+    search_user_group,
     add_user,
     add_user_group,
     remove_user_group
@@ -41,9 +42,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        projects = Project.objects.all()
-        users = User.objects.all()
-
         user = None
         username = None
         project = None
@@ -83,18 +81,19 @@ class Command(BaseCommand):
             else:
                 logger.warn("Project " + project + " already exists")
         else:
+            projects = Project.objects.exclude(status=ProjectStatusChoice.objects.get(name="Archived"))
+
             for p in projects:
                 proj = p.title
                 search_project(conn, proj)
                 if len(conn.entries) == 0:
-                    break
-                add_project(conn, proj, p.pi)
-                users = project.ProjectUser.all()
+                    add_project(conn, proj, p.pi)
+                users = ProjectUser.objects.filter(project=p)
                 for u in users:
                     username = u.user.username
                     search_user(conn, username)
                     if len(conn.entries) == 0:
-                        add_user(conn, username)
+                        add_user(conn, u.user)
                     add_user_group(conn, username, proj)
                 
 

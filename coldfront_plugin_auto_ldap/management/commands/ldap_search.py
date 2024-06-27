@@ -38,6 +38,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         username = None
         project = None
+        uri = parse_uri()
 
         try:
             username = options["user"]
@@ -54,9 +55,12 @@ class Command(BaseCommand):
 
         conn = connect()
 
-        if user != None:
+        if username != None:
             if project != None:
-                search_user_group(conn, user, project)
+                search_project(conn, project)
+                if len(conn.entries) == 0:
+                    print(f"Project {project} does not exist")
+                search_user_group(conn, username, project)
                 if "uid=" + username + ",ou=users," + uri in conn.entries[0].entry_to_json():
                     print(f"User {username} found in project {project}")
                 else:

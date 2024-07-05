@@ -72,8 +72,8 @@ def connect(uri = URI):
             os.mknod(MOCK_FILE)
             if conn.search(URI, '(objectclass=*)', attributes=ALL_ATTRIBUTES):
                 conn.response_to_file(MOCK_FILE, raw=True)
-        server.info.to_file(MOCK_INFO)
-        server.schema.to_file(MOCK_SCHEMA)
+            server.info.to_file(MOCK_INFO)
+            server.schema.to_file(MOCK_SCHEMA)
         fake_server = Server.from_definition('my_fake_server', MOCK_INFO, MOCK_SCHEMA)
         connection = Connection(fake_server, user='cn=my_user,ou=test,o=lab', password='my_password', client_strategy=MOCK_SYNC)
         try:

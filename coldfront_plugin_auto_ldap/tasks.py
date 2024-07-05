@@ -1,5 +1,5 @@
 import logging
-from ldap3 import Server, Connection, TLS, get_config_parameter, set_config_parameter, SASL, ALL
+from ldap3 import Server, Connection, Tls, get_config_parameter, set_config_parameter, SASL, ALL
 
 from django.contrib.auth.models import User
 

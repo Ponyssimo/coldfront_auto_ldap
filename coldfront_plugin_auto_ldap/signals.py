@@ -14,9 +14,9 @@ def add_group(sender, **kwargs):
 @receiver(allocation_activate_user, sender=ProjectAddUsersView)
 def add_user(sender, **kwargs):
     allocation_user_pk = kwargs.get('allocation_user_pk')
-    async_task('coldfront_plugin_auto_ldap.tasks.add_user', allocation_user_pk)
+    async_task('coldfront_plugin_auto_ldap.tasks.add_user_proj', allocation_user_pk)
 
 @receiver(allocation_remove_user, sender=ProjectRemoveUsersView)
 def remove_user(sender, **kwargs):
     allocation_user_pk = kwargs.get('allocation_user_pk')
-    async_task('coldfront_plugin_auto_ldap.tasks.remove_user', allocation_user_pk)
+    async_task('coldfront_plugin_auto_ldap.tasks.remove_user_proj', allocation_user_pk)

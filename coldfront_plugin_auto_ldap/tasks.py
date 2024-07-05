@@ -37,7 +37,7 @@ def add_group(allocation_pk):
     disconnect(conn)
 
 # creates user if it doesn't already exist and adds them to a project
-def add_user(allocation_user_pk):
+def add_user_proj(allocation_user_pk):
     conn = connect()
     user = AllocationUser.objects.get(pk=allocation_user_pk)
     username = user.user.username
@@ -56,18 +56,18 @@ def add_user(allocation_user_pk):
     disconnect(conn)
 
 # removes a user from a project
-def remove_user(allocation_user_pk):
+def remove_user_proj(allocation_user_pk):
     conn = connect()
     user = AllocationUser.objects.get(pk=allocation_user_pk)
     username = user.user.username
     project = user.allocation.project.title
 
-    # sheck if user exists
+    # check if user exists
     search_user(conn, username)
 
     if len(conn.entries) == 0:
         logger.info("User %s does not exist", username)
     else:
-        remove_user_group(conn, username, project)
+        remove_user_group(conn, user.user, project)
         
     disconnect(conn)

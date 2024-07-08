@@ -42,7 +42,11 @@ def add_user_proj(allocation_user_pk):
     user = AllocationUser.objects.get(pk=allocation_user_pk)
     username = user.user.username
     project = user.allocation.project.title
-
+    projAllocs = Allocation.objects.filter(project=Project.objects.get(title=project)).order_by('pk').first()
+    if user.allocation != projAllocs:
+        disconnect(conn)
+        return
+    
     # check if user exists, create if they don't - maybe, might be able to just use existing users in ldap
     search_user(conn, username)
 
@@ -61,6 +65,10 @@ def remove_user_proj(allocation_user_pk):
     user = AllocationUser.objects.get(pk=allocation_user_pk)
     username = user.user.username
     project = user.allocation.project.title
+    projAllocs = Allocation.objects.filter(project=Project.objects.get(title=project)).order_by('pk').first()
+    if user.allocation != projAllocs:
+        disconnect(conn)
+        return
 
     # check if user exists
     search_user(conn, username)

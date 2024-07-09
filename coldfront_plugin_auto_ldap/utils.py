@@ -25,7 +25,7 @@ LDAP_PRIV_KEY_FILE = import_from_settings("LDAP_USER_SEARCH_PRIV_KEY_FILE", None
 LDAP_CERT_FILE = import_from_settings("LDAP_USER_SEARCH_CERT_FILE", None)
 LDAP_CACERT_FILE = import_from_settings("LDAP_USER_SEARCH_CACERT_FILE", None)
 
-OU = import_from_settings("AUTO_LDAP_COLDFRONT_OU", 'COLDFRONT')
+OU = import_from_settings("AUTO_LDAP_COLDFRONT_OU", 'coldfront')
 MOCK = import_from_settings("AUTO_LDAP_MOCK", False) #whether to use a mock server
 MOCK_FILE = import_from_settings("AUTO_LDAP_MOCK_FILE", None) #json file with mock server schema
 MOCK_INFO = import_from_settings("AUTO_LDAP_INFO_FILE", None)
